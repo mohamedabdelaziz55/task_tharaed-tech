@@ -1,87 +1,63 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
+import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
+import 'get_text_field.dart';
+import 'gradient_button.dart';
 
 class RegisterBody extends StatelessWidget {
   const RegisterBody({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // لتجنب الـ overflow
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40),
-          Image.asset(ImageAssets.logo),
-          const SizedBox(height: 20),
-          const Text(
-            "إنشاء حساب جديد",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.07,
+          vertical: size.height * 0.02,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: size.height * 0.04),
+            Image.asset(ImageAssets.logo, width: size.width * 0.35),
+            SizedBox(height: size.height * 0.02),
+            Text(
+              "Create a new account",
+              style: TextStyle(
+                fontSize: size.width * 0.055,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 30),
-          const ProfileImageUploader(),
-        ],
+            SizedBox(height: size.height * 0.03),
+            const ProfileImageUploader(),
+            SizedBox(height: size.height * 0.02),
+
+            GetTextField(),
+            SizedBox(height: size.height * 0.03),
+
+            GradientButton(title: 'Create a new account', onPressed: () {}),
+            SizedBox(height: size.height * 0.03),
+            CustomText()
+          ],
+        ),
       ),
     );
   }
 }
-
-class ProfileImageUploader extends StatelessWidget {
-  const ProfileImageUploader({super.key});
+class CustomText extends StatelessWidget {
+  const CustomText({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
-          'الصورة الشخصية',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-          textDirection: TextDirection.rtl,
-        ),
-        const SizedBox(height: 8),
-        DottedBorder(
-          options: RoundedRectDottedBorderOptions(
-            color: Colors.teal.shade300,
-            strokeWidth: 1.2,
-            dashPattern: const [6, 4],
-            radius: const Radius.circular(8),
-          ),
-          child: Container(
-            width: double.infinity,
-            height: 90,
-            color:  Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.camera_alt_outlined,
-                  color: Colors.teal,
-                  size: 28,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'الملفات المسموح بها: JPEG, PNG\nالحد الأقصى: 5 ميغابايت',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                  textDirection: TextDirection.rtl,
-                ),
-              ],
-            ),
-          ),
-        ),
+        Text("have an account?"),
+        Text(" Login" , style: TextStyle(
+          color: Colors.teal.shade700
+        ),)
       ],
     );
   }

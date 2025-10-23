@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: "PlayfairDisplay",
         scaffoldBackgroundColor: Colors.white
       ),
       home: const RegisterScreen(),
