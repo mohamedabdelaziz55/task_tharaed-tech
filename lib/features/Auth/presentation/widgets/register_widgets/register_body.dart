@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
+import 'custom_text.dart';
 import 'get_text_field.dart';
 import 'gradient_button.dart';
 
@@ -39,26 +40,11 @@ class RegisterBody extends StatelessWidget {
 
             GradientButton(title: 'Create a new account', onPressed: () {}),
             SizedBox(height: size.height * 0.03),
-            CustomText()
+            CustomText(text: 'Login',)
           ],
         ),
       ),
     );
   }
 }
-class CustomText extends StatelessWidget {
-  const CustomText({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("have an account?"),
-        Text(" Login" , style: TextStyle(
-          color: Colors.teal.shade700
-        ),)
-      ],
-    );
-  }
-}

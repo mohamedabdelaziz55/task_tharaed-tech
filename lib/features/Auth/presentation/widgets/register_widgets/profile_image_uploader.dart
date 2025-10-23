@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:task_tharad_tech/core/utils/app_colors.dart';
 
 class ProfileImageUploader extends StatelessWidget {
   const ProfileImageUploader({super.key});
@@ -21,7 +22,7 @@ class ProfileImageUploader extends StatelessWidget {
         const SizedBox(height: 8),
         DottedBorder(
           options: RoundedRectDottedBorderOptions(
-            color: Colors.teal,
+            color: Color(AppColors.primaryColor),
             strokeWidth: 1.2,
             dashPattern: const [6, 4],
             radius: const Radius.circular(8),
@@ -35,7 +36,7 @@ class ProfileImageUploader extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.camera_alt_outlined,
-                  color: Colors.teal,
+                  color: Color(AppColors.primaryColor),
                   size: 28,
                 ),
                 const SizedBox(height: 6),
