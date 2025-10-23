@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
+import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
+import '../../../../../core/utils/helper_methods.dart';
 import 'custom_text.dart';
 import 'get_text_field.dart';
 import 'gradient_button.dart';
@@ -21,9 +23,9 @@ class RegisterBody extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: size.height * 0.04),
-            Image.asset(ImageAssets.logo, width: size.width * 0.35),
-            SizedBox(height: size.height * 0.02),
+            SizedBox(height: size.height * 0.06),
+            Image.asset(ImageAssets.logo, width: size.width * 0.45),
+            SizedBox(height: size.height * 0.06),
             Text(
               "Create a new account",
               style: TextStyle(
@@ -39,12 +41,15 @@ class RegisterBody extends StatelessWidget {
             SizedBox(height: size.height * 0.03),
 
             GradientButton(title: 'Create a new account', onPressed: () {}),
-            SizedBox(height: size.height * 0.03),
-            CustomText(text: 'Login',)
+            SizedBox(height: size.height * 0.01),
+            CustomText(
+              onPressed: () {
+                navigateTo(const LoginScreen() , canPop: true);
+              }, text2: 'Login', text1: 'have an account',
+            ),
           ],
         ),
       ),
     );
   }
 }
-
