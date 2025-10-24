@@ -5,6 +5,7 @@ import 'package:task_tharad_tech/features/Auth/presentation/screens/register_scr
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/custom_text.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/gradient_button.dart';
+import '../../screens/otp_verify.dart';
 import 'custom_login_opions_row.dart';
 
 class LoginBody extends StatelessWidget {
@@ -42,7 +43,12 @@ class LoginBody extends StatelessWidget {
             SizedBox(height: size.height * 0.01),
             const LoginOptionsRow(),
             SizedBox(height: size.height * 0.04),
-            GradientButton(title: 'Login', onPressed: () {}),
+            GradientButton(
+              title: 'Login',
+              onPressed: () {
+                navigateTo(const OtpVerificationScreen(), canPop: false);
+              },
+            ),
 
             SizedBox(height: size.height * 0.03),
             CustomText(
