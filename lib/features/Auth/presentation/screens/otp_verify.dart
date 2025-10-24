@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:task_tharad_tech/core/utils/helper_methods.dart';
+import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/image_assets.dart';
@@ -197,7 +199,12 @@ class _OtpVerificationBodyState extends State<OtpVerificationBody> {
               ),
               // Verify Button
               SizedBox(height: size.height * 0.04),
-              GradientButton(title: "Verify", onPressed: _onOtpComplete),
+              GradientButton(
+                title: "Verify",
+                onPressed: () {
+                  navigateTo(ProfileScreen(), canPop: false);
+                },
+              ),
             ],
           ),
         ),
