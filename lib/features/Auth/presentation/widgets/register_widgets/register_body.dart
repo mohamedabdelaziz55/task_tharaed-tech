@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
-import '../../../../../core/utils/helper_methods.dart';
+import '../../../../../core/utils/helpers/helper_methods.dart';
 import 'custom_text.dart';
 import 'get_text_field.dart';
 import 'gradient_button.dart';

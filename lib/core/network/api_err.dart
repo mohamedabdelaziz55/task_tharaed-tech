@@ -1,12 +1,11 @@
-class ApiError{
-  final String message;
-final int? statusCode;
-  ApiError({required this.message,this.statusCode});
+class ApiError {
+  final String? message;
+  final int? statusCode;
 
+  ApiError({this.message, this.statusCode});
 
   @override
   String toString() {
-    return 'ApiError: message=$message, statusCode=$statusCode';
+    return 'ApiError: message=${message ?? "Unknown error"}, statusCode=$statusCode';
   }
-
 }

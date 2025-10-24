@@ -14,7 +14,10 @@ class ApiService {
     }
   }
 
-  Future<dynamic> post(String path, Map<String, dynamic> body) async {
+  Future<dynamic> post({
+    required String path,
+    required Map<String, dynamic> body,
+  }) async {
     try {
       final response = await dioClient.dio.post(path, data: body);
       return response.data;
@@ -31,6 +34,7 @@ class ApiService {
       return ApiExceptions.handleError(e);
     }
   }
+
   Future<dynamic> delete(String path, Map<String, dynamic> body) async {
     try {
       final response = await dioClient.dio.delete(path, data: body);

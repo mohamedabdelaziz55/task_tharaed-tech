@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:task_tharad_tech/core/network/api_constance.dart';
 
-import '../utils/pref_helper.dart';
+import '../utils/helpers/pref_helper.dart';
 
 class DioClient {
   final Dio dio = Dio(
