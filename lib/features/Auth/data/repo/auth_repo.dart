@@ -10,10 +10,8 @@ import '../../../../core/network/api_err.dart';
 class AuthRepo {
   final ApiService apiService = ApiService();
 
-  /// ✅ المستخدم الحالي المخزن مؤقتًا في الذاكرة
   UserModel? currentUser;
 
-  /// تسجيل الدخول
   Future<UserModel> login({
     required String email,
     required String password,
@@ -28,7 +26,7 @@ class AuthRepo {
 
       if (user.token != null && user.token!.isNotEmpty) {
         await PrefHelper.saveUserToken(user.token!);
-        await saveUserData(user); // ✅ نحفظ بيانات المستخدم محليًا
+        await saveUserData(user);
       }
 
       currentUser = user;
@@ -40,7 +38,6 @@ class AuthRepo {
     }
   }
 
-  /// تسجيل مستخدم جديد
   Future<Map<String, dynamic>> register({
     required String username,
     required String email,
@@ -75,7 +72,9 @@ class AuthRepo {
 
   Future<UserModel?> getUserProfile() async {
     try {
-      final response = await apiService.getRequest(ApiConstance.profileDetailsPath);
+      final response = await apiService.getRequest(
+        ApiConstance.profileDetailsPath,
+      );
       final fetchedUser = UserModel.fromJson(response['data']);
 
       currentUser = fetchedUser;

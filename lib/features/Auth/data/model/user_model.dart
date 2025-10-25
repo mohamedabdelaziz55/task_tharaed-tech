@@ -24,7 +24,6 @@ class UserModel {
     );
   }
 
-  /// ✅ لتحويل الـ model إلى Map (مفيد عند الحفظ في SharedPreferences)
   Map<String, dynamic> toJson() {
     return {
       'token': token,
@@ -35,7 +34,6 @@ class UserModel {
     };
   }
 
-  /// ✅ لعمل نسخة جديدة مع تعديل بعض القيم فقط
   UserModel copyWith({
     String? token,
     String? username,

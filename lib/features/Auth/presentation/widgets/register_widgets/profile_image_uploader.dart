@@ -7,7 +7,7 @@ import 'package:task_tharad_tech/core/widgets/image_picker_dialog.dart';
 
 class ProfileImageUploader extends StatefulWidget {
   final void Function(File) onImagePicked;
-  final String? initialImageUrl; // ✅ صورة السيرفر أو المخزنة
+  final String? initialImageUrl;
 
   const ProfileImageUploader({
     super.key,
@@ -109,7 +109,6 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
     );
   }
 
-  // ✅ ويدجت للـ UI الافتراضي لما مفيش صورة
   Widget _placeholder() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
