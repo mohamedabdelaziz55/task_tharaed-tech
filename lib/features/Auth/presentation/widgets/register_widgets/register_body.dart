@@ -59,19 +59,24 @@ class _RegisterBodyState extends State<RegisterBody> {
         passwordConfirmation: confirmPasswordController.text.trim(),
       );
 
+      // اقفل الـ dialog أول ما يخلص التسجيل
+      Navigator.pop(context);
+
       if (response['status'] != null && response['status'] == 'success') {
         SnackbarUtils.showSnackBar(context, response['message'] ?? "Registration successful");
-        navigateTo(const OtpVerificationScreen(), canPop: false);
+
+        // جلب OTP و email من response وإرسالهم للـ OTP screen
+        final otp = response['data']['otp'].toString();
+        final email = response['data']['email'].toString();
+        navigateTo(OtpVerificationScreen(otp: otp, email: email), canPop: false);
       } else {
         SnackbarUtils.showSnackBar(context, response['message'] ?? "Registration failed", isError: true);
       }
     } catch (e) {
+      Navigator.pop(context); // اقفل الـ dialog لو حصل خطأ
       SnackbarUtils.showSnackBar(context, "Registration failed: $e", isError: true);
-    } finally {
-      Navigator.pop(context);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
