@@ -5,12 +5,15 @@ import 'package:task_tharad_tech/core/network/api_constance.dart';
 import 'package:task_tharad_tech/core/network/api_service.dart';
 import 'package:task_tharad_tech/core/utils/helpers/pref_helper.dart';
 import 'package:task_tharad_tech/features/Auth/data/model/user_model.dart';
-
 import '../../../../core/network/api_err.dart';
 
 class AuthRepo {
   final ApiService apiService = ApiService();
 
+  /// ✅ المستخدم الحالي المخزن مؤقتًا في الذاكرة
+  UserModel? currentUser;
+
+  /// تسجيل الدخول
   Future<UserModel> login({
     required String email,
     required String password,
@@ -25,8 +28,10 @@ class AuthRepo {
 
       if (user.token != null && user.token!.isNotEmpty) {
         await PrefHelper.saveUserToken(user.token!);
+        await saveUserData(user); // ✅ نحفظ بيانات المستخدم محليًا
       }
 
+      currentUser = user;
       return user;
     } on DioError catch (e) {
       throw ApiExceptions.handleError(e);
@@ -35,6 +40,7 @@ class AuthRepo {
     }
   }
 
+  /// تسجيل مستخدم جديد
   Future<Map<String, dynamic>> register({
     required String username,
     required String email,
@@ -65,5 +71,39 @@ class AuthRepo {
     } catch (e) {
       throw ApiError(message: e.toString());
     }
+  }
+
+  Future<UserModel?> getUserProfile() async {
+    try {
+      final response = await apiService.getRequest(ApiConstance.profileDetailsPath);
+      final fetchedUser = UserModel.fromJson(response['data']);
+
+      currentUser = fetchedUser;
+      await saveUserData(fetchedUser);
+      return fetchedUser;
+    } on DioError catch (e) {
+      throw ApiExceptions.handleError(e);
+    } catch (e) {
+      throw ApiError(message: e.toString());
+    }
+  }
+
+  /// ✅ حفظ بيانات المستخدم محليًا في SharedPreferences
+  Future<void> saveUserData(UserModel user) async {
+    await PrefHelper.saveUserData({
+      'username': user.username,
+      'email': user.email,
+      'image': user.image,
+      'token': user.token,
+    });
+    currentUser = user;
+  }
+
+  Future<UserModel?> getSavedUser() async {
+    final data = await PrefHelper.getUserData();
+    if (data == null) return null;
+    final localUser = UserModel.fromJson(data);
+    currentUser = localUser;
+    return localUser;
   }
 }
