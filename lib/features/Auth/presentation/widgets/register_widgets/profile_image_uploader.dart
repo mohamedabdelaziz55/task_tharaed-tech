@@ -7,7 +7,7 @@ import 'package:task_tharad_tech/core/widgets/image_picker_dialog.dart';
 
 class ProfileImageUploader extends StatefulWidget {
   final void Function(File) onImagePicked;
-  final String? initialImageUrl; // ✅ صورة السيرفر أو المخزنة
+  final String? initialImageUrl;
 
   const ProfileImageUploader({
     super.key,
@@ -24,31 +24,38 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickFromGallery() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+    await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
+      setState(() => imageFile = File(pickedFile.path));
       widget.onImagePicked(imageFile!);
     }
     Navigator.pop(context);
   }
 
   Future<void> pickFromCamera() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    final XFile? pickedFile =
+    await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      setState(() {
-        imageFile = File(pickedFile.path);
-      });
+      setState(() => imageFile = File(pickedFile.path));
       widget.onImagePicked(imageFile!);
     }
     Navigator.pop(context);
+  }
+
+  void _removeImage() {
+    setState(() {
+      imageFile = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final bool hasNetworkImage =
         widget.initialImageUrl != null && widget.initialImageUrl!.isNotEmpty;
+
+    final String? imageUrl =
+        imageFile?.path ?? (hasNetworkImage ? widget.initialImageUrl : null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,26 +88,55 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
             ),
             child: Container(
               width: double.infinity,
-              height: 90,
-              color: Colors.white,
-              child: ClipRRect(
+              height: 150, // ✅ حجم ثابت وواضح
+              decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                child: imageFile != null
-                    ? Image.file(
-                  imageFile!,
-                  width: double.infinity,
-                  height: 90,
-                  fit: BoxFit.cover,
-                )
-                    : hasNetworkImage
-                    ? Image.network(
-                  widget.initialImageUrl!,
-                  width: double.infinity,
-                  height: 90,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stack) => _placeholder(),
-                )
-                    : _placeholder(),
+              ),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: imageUrl != null
+                        ? (imageFile != null
+                        ? Image.file(
+                      imageFile!,
+                      width: double.infinity,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    )
+                        : Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      height: 150,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stack) =>
+                          _placeholder(),
+                    ))
+                        : _placeholder(),
+                  ),
+
+                  if (imageUrl != null)
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: GestureDetector(
+                        onTap: _removeImage,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -109,27 +145,28 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
     );
   }
 
-  // ✅ ويدجت للـ UI الافتراضي لما مفيش صورة
   Widget _placeholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(
-          Icons.camera_alt_outlined,
-          color: Color(AppColors.primaryColor),
-          size: 28,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Allowed files: JPEG, PNG\nMaximum size: 5 MB',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-            height: 1.4,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.camera_alt_outlined,
+            color: Color(AppColors.primaryColor),
+            size: 32,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            'Allowed files: JPEG, PNG\nMaximum size: 5 MB',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -30,7 +30,6 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  // ===================== تحميل بيانات المستخدم =====================
   Future<void> _loadUserProfile() async {
     try {
       final fetchedUser = await authRepo.getUserProfile();
@@ -55,11 +54,11 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     } catch (e) {
       String errorMessage = e.toString();
       if (e is ApiError) errorMessage = e.message ?? 'API Error';
-      print("⚠️ Failed to load user: $errorMessage");
+      print(" Failed to load user: $errorMessage");
 
       final savedData = await PrefHelper.getUserData();
       if (savedData != null) {
-        print("✅ Loaded user data from local storage");
+        print("Loaded user data from local storage");
         setState(() {
           _usernameController.text = savedData['username'] ?? '';
           _emailController.text = savedData['email'] ?? '';
@@ -72,17 +71,15 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
           isLoading = false;
         });
       } else {
-        print("❌ No saved user data found");
+        print(" No saved user data found");
         setState(() => isLoading = false);
       }
     }
   }
 
-  // ===================== رفع صورة جديدة =====================
   Future<void> _uploadProfileImage(File image) async {
     try {
       print("Uploading image: ${image.path}");
-      // هنا مكان API رفع الصورة الحقيقي (لو عندك endpoint)
       await PrefHelper.saveUserData(
         username: _usernameController.text,
         email: _emailController.text,
@@ -93,7 +90,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
         profileImage = image;
         user = user?.copyWith(image: image.path);
       });
-      print("✅ Profile image saved locally: ${image.path}");
+      print("Profile image saved locally: ${image.path}");
     } catch (e) {
       print("Upload failed: $e");
     }
@@ -227,7 +224,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Profile updated locally ✅')),
+                              const SnackBar(content: Text('Profile updated locally ')),
                             );
                           },
                         ),
