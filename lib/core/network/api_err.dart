@@ -6,6 +6,6 @@ class ApiError {
 
   @override
   String toString() {
-    return 'ApiError: message=${message ?? "Unknown error"}, statusCode=$statusCode';
+    return 'ApiError: message=${message ?? "Unknown error"}';
   }
 }
