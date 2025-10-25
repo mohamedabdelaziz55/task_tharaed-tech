@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
@@ -7,8 +8,15 @@ import 'custom_text.dart';
 import 'get_text_field.dart';
 import 'gradient_button.dart';
 
-class RegisterBody extends StatelessWidget {
+class RegisterBody extends StatefulWidget {
   const RegisterBody({super.key});
+
+  @override
+  State<RegisterBody> createState() => _RegisterBodyState();
+}
+
+class _RegisterBodyState extends State<RegisterBody> {
+  File? selectedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +42,35 @@ class RegisterBody extends StatelessWidget {
               ),
             ),
             SizedBox(height: size.height * 0.03),
-            const ProfileImageUploader(),
+
+            ProfileImageUploader(
+              onImagePicked: (file) {
+                setState(() {
+                  selectedImage = file;
+                });
+                print("Image selected: ${selectedImage!.path}");
+              },
+            ),
             SizedBox(height: size.height * 0.02),
 
             GetTextField(),
             SizedBox(height: size.height * 0.03),
 
-            GradientButton(title: 'Create a new account', onPressed: () {}),
+            GradientButton(
+              title: 'Create a new account',
+              onPressed: () {
+                if (selectedImage != null) {
+                  print("Ready to upload image: ${selectedImage!.path}");
+                }
+              },
+            ),
             SizedBox(height: size.height * 0.01),
             CustomText(
               onPressed: () {
-                navigateTo(const LoginScreen() , canPop: true);
-              }, text2: 'Login', text1: 'have an account',
+                navigateTo(const LoginScreen(), canPop: true);
+              },
+              text2: 'Login',
+              text1: 'have an account',
             ),
           ],
         ),

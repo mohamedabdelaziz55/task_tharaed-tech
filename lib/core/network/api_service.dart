@@ -16,7 +16,7 @@ class ApiService {
 
   Future<dynamic> post({
     required String path,
-    required Map<String, dynamic> body,
+    required dynamic  body,
   }) async {
     try {
       final response = await dioClient.dio.post(path, data: body);
