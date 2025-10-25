@@ -8,7 +8,6 @@ import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_wid
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
 import '../../../../../core/utils/snackbar_utils.dart';
-import '../../screens/otp_verify.dart';
 import 'custom_login_opions_row.dart';
 
 class LoginBody extends StatefulWidget {
@@ -20,26 +19,43 @@ class LoginBody extends StatefulWidget {
 
 class _LoginBodyState extends State<LoginBody> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  AuthRepo authRepo = AuthRepo();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthRepo authRepo = AuthRepo();
 
   Future<void> loginUser() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
     try {
       final user = await authRepo.login(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      if (user != null) {
-        navigateTo(const ProfileScreen(), canPop: false);
-        setState(() {});
-      }
-      SnackbarUtils.showSnackBar(context, "Login successful");
-    } catch (e) {
 
+      Navigator.pop(context);
+
+      if (user.token != null && user.token!.isNotEmpty) {
+        SnackbarUtils.showSnackBar(context, "Login successful");
+        navigateTo(const ProfileScreen(), canPop: false);
+      } else {
+        SnackbarUtils.showSnackBar(context, "Invalid credentials", isError: true);
+      }
+    } catch (e) {
+      Navigator.pop(context);
       SnackbarUtils.showSnackBar(context, "Login failed: $e", isError: true);
     }
   }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +96,9 @@ class _LoginBodyState extends State<LoginBody> {
               GradientButton(
                 title: 'Login',
                 onPressed: () {
-                  setState(() {
+                  if (_formKey.currentState!.validate()) {
                     loginUser();
-                  });
+                  }
                 },
               ),
               SizedBox(height: size.height * 0.03),

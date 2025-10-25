@@ -7,19 +7,24 @@ import 'package:task_tharad_tech/core/utils/helpers/pref_helper.dart';
 import 'package:task_tharad_tech/features/Auth/data/model/user_model.dart';
 
 class AuthRepo {
-  ApiService apiService = ApiService();
+  final ApiService apiService = ApiService();
 
-  Future<UserModel> login({required String email,required String password}) async {
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) async {
     try {
       final response = await apiService.post(
-        body: {'email': email, 'password': password},
         path: ApiConstance.loginPath,
+        body: {'email': email, 'password': password},
       );
 
-      final user = UserModel.fromJson(response['data']);
-      if (user.token == null) {
+      final user = UserModel.fromJson(response);
+
+      if (user.token != null && user.token!.isNotEmpty) {
         await PrefHelper.saveUserToken(user.token!);
       }
+
       return user;
     } on DioError catch (e) {
       throw ApiExceptions.handleError(e);
