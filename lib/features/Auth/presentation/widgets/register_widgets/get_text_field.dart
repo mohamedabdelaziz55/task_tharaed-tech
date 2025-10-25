@@ -8,28 +8,9 @@ class GetTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [   const CustomTextField(
-        title: 'User Name',
-        isPasswordField: false,
-      ),
-        SizedBox(height: 12),
+      children: [
 
-        const CustomTextField(
-          title: 'Email',
-          isPasswordField: false,
-        ),
-        SizedBox(height: 12),
-
-        const CustomTextField(
-          title: 'Password',
-          isPasswordField: true,
-        ),
-        SizedBox(height: 12),
-
-        const CustomTextField(
-          title: 'Confirm password',
-          isPasswordField: true,
-        ),],
+      ],
     );
   }
 }

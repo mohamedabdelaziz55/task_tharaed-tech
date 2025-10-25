@@ -16,10 +16,16 @@ class ApiService {
 
   Future<dynamic> post({
     required String path,
-    required dynamic  body,
+    required dynamic body,
   }) async {
     try {
-      final response = await dioClient.dio.post(path, data: body);
+      final response = await dioClient.dio.post(
+        path,
+        data: body,
+        options: Options(
+          contentType: body is FormData ? 'multipart/form-data' : 'application/json',
+        ),
+      );
       return response.data;
     } on DioError catch (e) {
       return ApiExceptions.handleError(e);
