@@ -19,9 +19,9 @@ class LoginBody extends StatefulWidget {
 
 class _LoginBodyState extends State<LoginBody> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final AuthRepo authRepo = AuthRepo();
+    TextEditingController emailController = TextEditingController();
+   TextEditingController passwordController = TextEditingController();
+   AuthRepo authRepo = AuthRepo();
 
   Future<void> loginUser() async {
     showDialog(
@@ -55,7 +55,12 @@ class _LoginBodyState extends State<LoginBody> {
     passwordController.dispose();
     super.dispose();
   }
-
+  @override
+  void initState() {
+    super.initState();
+    emailController.text = "mm@mm.com";
+    passwordController.text = "123123123";
+  }
 
   @override
   Widget build(BuildContext context) {

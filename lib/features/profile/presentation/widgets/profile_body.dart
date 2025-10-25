@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/features/Auth/data/model/user_model.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';
 import '../../../../core/network/api_err.dart';
+import '../../../../core/utils/helpers/pref_helper.dart';
 import '../../../Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
@@ -26,48 +27,83 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
 
   final AuthRepo authRepo = AuthRepo();
 
-  // Controllers
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  // تحميل بيانات المستخدم
+  // ===================== تحميل بيانات المستخدم =====================
   Future<void> _loadUserProfile() async {
     try {
       final fetchedUser = await authRepo.getUserProfile();
+
+      if (fetchedUser == null) {
+        throw Exception("User data is null");
+      }
+
       setState(() {
         user = fetchedUser;
-        _usernameController.text = fetchedUser!.username;
-        _emailController.text = fetchedUser.email;
+        _usernameController.text = fetchedUser.username ?? '';
+        _emailController.text = fetchedUser.email ?? '';
+        isLoading = false;
       });
+
+      await PrefHelper.saveUserData(
+        username: fetchedUser.username ?? '',
+        email: fetchedUser.email ?? '',
+        imageUrl: fetchedUser.image,
+        token: fetchedUser.token ?? '',
+      );
     } catch (e) {
       String errorMessage = e.toString();
-      if (e is ApiError) errorMessage = e.message!;
-      print("Failed to load user: $errorMessage");
-    } finally {
-      setState(() => isLoading = false);
+      if (e is ApiError) errorMessage = e.message ?? 'API Error';
+      print("⚠️ Failed to load user: $errorMessage");
+
+      final savedData = await PrefHelper.getUserData();
+      if (savedData != null) {
+        print("✅ Loaded user data from local storage");
+        setState(() {
+          _usernameController.text = savedData['username'] ?? '';
+          _emailController.text = savedData['email'] ?? '';
+          user = UserModel(
+            username: savedData['username'] ?? '',
+            email: savedData['email'] ?? '',
+            image: savedData['image'],
+            token: savedData['token'],
+          );
+          isLoading = false;
+        });
+      } else {
+        print("❌ No saved user data found");
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  // ===================== رفع صورة جديدة =====================
+  Future<void> _uploadProfileImage(File image) async {
+    try {
+      print("Uploading image: ${image.path}");
+      // هنا مكان API رفع الصورة الحقيقي (لو عندك endpoint)
+      await PrefHelper.saveUserData(
+        username: _usernameController.text,
+        email: _emailController.text,
+        imageUrl: image.path, // نحفظ مسار الصورة المحلية مؤقتًا
+        token: user?.token ?? '',
+      );
+      setState(() {
+        profileImage = image;
+        user = user?.copyWith(image: image.path);
+      });
+      print("✅ Profile image saved locally: ${image.path}");
+    } catch (e) {
+      print("Upload failed: $e");
     }
   }
 
   @override
   void initState() {
     super.initState();
-
-    // ✅ أولاً نحمل المستخدم المحلي مباشرة (يظهر فورًا)
-    final localUser = authRepo.currentUser; // استخدم ما عندك من كاش أو حالة حالية
-    if (localUser != null) {
-      user = localUser;
-      _usernameController.text = localUser.username;
-      _emailController.text = localUser.email;
-      if (localUser.image != null && localUser.image!.isNotEmpty) {
-        profileImage = File(localUser.image!);
-      }
-      isLoading = false;
-    }
-
-    // ✅ ثم نحمل من السيرفر لتحديث البيانات بعد الظهور
     _loadUserProfile();
 
-    // إعداد الأنيميشن
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -103,10 +139,11 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     final h = size.height;
     final w = size.width;
 
-    // لو مفيش بيانات حتى محليًا، اعرض تحميل بسيط
-    if (isLoading && user == null) {
+    if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    final imageUrl = profileImage?.path ?? user?.image;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,54 +174,69 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       ProfileImageUploader(
-                        onImagePicked: (file) {
-                          setState(() {
-                            profileImage = file;
-                          });
+                        initialImageUrl: imageUrl,
+                        onImagePicked: (file) async {
+                          await _uploadProfileImage(file);
                         },
                       ),
                       SizedBox(height: h * 0.03),
+
                       CustomTextField(
                         title: "User Name",
                         controller: _usernameController,
                       ),
                       SizedBox(height: h * 0.015),
+
                       CustomTextField(
                         title: "Email",
                         controller: _emailController,
                       ),
                       SizedBox(height: h * 0.015),
+
                       const CustomTextField(
                         title: "Old Password",
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.015),
+
                       const CustomTextField(
                         title: "New Password",
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.015),
+
                       const CustomTextField(
                         title: "Confirm New Password",
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.03),
+
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: w * 0.15),
                         child: GradientButton(
                           title: 'Update Profile',
-                          onPressed: () {
+                          onPressed: () async {
                             print("Updated username: ${_usernameController.text}");
                             print("Updated email: ${_emailController.text}");
-                            if (profileImage != null) {
-                              print("New image path: ${profileImage!.path}");
-                            }
+
+                            await PrefHelper.saveUserData(
+                              username: _usernameController.text,
+                              email: _emailController.text,
+                              imageUrl: imageUrl,
+                              token: user?.token ?? '',
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Profile updated locally ✅')),
+                            );
                           },
                         ),
                       ),
                       SizedBox(height: h * 0.015),
+
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          await PrefHelper.clearUserData();
                           print("Logout pressed");
                         },
                         child: Text(
@@ -196,6 +248,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                           ),
                         ),
                       ),
+
                       SizedBox(height: h * 0.05),
                     ],
                   ),

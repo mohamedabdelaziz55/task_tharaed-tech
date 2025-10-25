@@ -25,8 +25,21 @@ class PrefHelper {
   }
 
   /// ✅ حفظ بيانات المستخدم كاملة (username, email, image, token)
-  static Future<void> saveUserData(Map<String, dynamic> userData) async {
+  static Future<void> saveUserData({
+    required String username,
+    required String email,
+    required String? imageUrl,
+    required String token,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
+
+    final userData = {
+      'username': username,
+      'email': email,
+      'image': imageUrl,
+      'token': token,
+    };
+
     final jsonString = jsonEncode(userData);
     await prefs.setString(prefKeyUserData, jsonString);
     print('✅ User data saved locally: $jsonString');

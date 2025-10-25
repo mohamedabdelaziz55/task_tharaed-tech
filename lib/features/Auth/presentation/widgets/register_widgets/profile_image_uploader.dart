@@ -7,8 +7,13 @@ import 'package:task_tharad_tech/core/widgets/image_picker_dialog.dart';
 
 class ProfileImageUploader extends StatefulWidget {
   final void Function(File) onImagePicked;
+  final String? initialImageUrl; // ✅ صورة السيرفر أو المخزنة
 
-  const ProfileImageUploader({super.key, required this.onImagePicked});
+  const ProfileImageUploader({
+    super.key,
+    required this.onImagePicked,
+    this.initialImageUrl,
+  });
 
   @override
   State<ProfileImageUploader> createState() => _ProfileImageUploaderState();
@@ -42,6 +47,9 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasNetworkImage =
+        widget.initialImageUrl != null && widget.initialImageUrl!.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -75,38 +83,51 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
               width: double.infinity,
               height: 90,
               color: Colors.white,
-              child: imageFile != null
-                  ? ClipRRect(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
+                child: imageFile != null
+                    ? Image.file(
                   imageFile!,
                   width: double.infinity,
                   height: 90,
                   fit: BoxFit.cover,
-                ),
-              )
-                  : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.camera_alt_outlined,
-                    color: Color(AppColors.primaryColor),
-                    size: 28,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Allowed files: JPEG, PNG\nMaximum size: 5 MB',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                )
+                    : hasNetworkImage
+                    ? Image.network(
+                  widget.initialImageUrl!,
+                  width: double.infinity,
+                  height: 90,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stack) => _placeholder(),
+                )
+                    : _placeholder(),
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  // ✅ ويدجت للـ UI الافتراضي لما مفيش صورة
+  Widget _placeholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(
+          Icons.camera_alt_outlined,
+          color: Color(AppColors.primaryColor),
+          size: 28,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Allowed files: JPEG, PNG\nMaximum size: 5 MB',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+            height: 1.4,
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
     );

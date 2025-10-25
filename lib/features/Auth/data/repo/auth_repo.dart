@@ -88,14 +88,13 @@ class AuthRepo {
     }
   }
 
-  /// ✅ حفظ بيانات المستخدم محليًا في SharedPreferences
   Future<void> saveUserData(UserModel user) async {
-    await PrefHelper.saveUserData({
-      'username': user.username,
-      'email': user.email,
-      'image': user.image,
-      'token': user.token,
-    });
+    await PrefHelper.saveUserData(
+      username: user.username,
+      email: user.email,
+      imageUrl: user.image,
+      token: user.token ?? (await PrefHelper.getToken() ?? ''),
+    );
     currentUser = user;
   }
 
