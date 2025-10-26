@@ -7,7 +7,9 @@ import '../../cubit/profile_cubit.dart';
 import '../widgets/profile_body.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final Function(Locale) setLocale;
+
+  const ProfileScreen({super.key, required this.setLocale});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
       create: (_) => ProfileCubit(AuthRepo(), ProfileRepo())..loadUserProfile(),
       child: Scaffold(
         body: Container(
-          decoration:  BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 Color(AppColors.gradientColor1),
@@ -25,7 +27,9 @@ class ProfileScreen extends StatelessWidget {
               end: Alignment.topLeft,
             ),
           ),
-          child: SafeArea(child: ProfileBody()),
+          child: SafeArea(
+            child: ProfileBody(setLocale: setLocale),
+          ),
         ),
       ),
     );

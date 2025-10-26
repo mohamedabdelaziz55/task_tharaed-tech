@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:task_tharad_tech/core/utils/app_colors.dart';
 
+import '../../generated/l10n.dart';
+
 class ImagePickerDialog extends StatelessWidget {
   final VoidCallback onGallery;
   final VoidCallback onCamera;
@@ -23,7 +25,7 @@ class ImagePickerDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Select Image Source',
+              S.of(context).selectImageSource,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -52,7 +54,7 @@ class ImagePickerDialog extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Gallery',
+                        S.of(context).gallery,
                         style: TextStyle(
                           color: Color(AppColors.primaryColor),
                           fontWeight: FontWeight.w600,
@@ -79,7 +81,7 @@ class ImagePickerDialog extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Camera',
+                        S.of(context).camera,
                         style: TextStyle(
                           color: Color(AppColors.primaryColor),
                           fontWeight: FontWeight.w600,
@@ -94,7 +96,7 @@ class ImagePickerDialog extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Cancel',
+                S.of(context).cancel,
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.bold,

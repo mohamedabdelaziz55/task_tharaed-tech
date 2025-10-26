@@ -5,19 +5,21 @@ import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
-import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 import '../../cubits/otp_cubit/otp_cubit.dart';
 import '../widgets/register_widgets/gradient_button.dart';
+import '../../../../generated/l10n.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String otp;
   final String email;
+  final void Function(Locale) setLocale;
 
   const OtpVerificationScreen({
     super.key,
     required this.otp,
     required this.email,
+    required this.setLocale,
   });
 
   @override
@@ -48,24 +50,26 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       child: BlocConsumer<OtpCubit, OtpState>(
         listener: (context, state) {
           if (state is OtpSuccess) {
-            navigateTo(const LoginScreen(), canPop: false);
+            navigateTo(
+              LoginScreen(setLocale: widget.setLocale),
+              canPop: false,
+            );
           } else if (state is OtpError) {
             SnackbarUtils.showSnackBar(
               context,
               state.message,
               isError: true,
-              title: "Error",
+              title: S.of(context).error,
             );
           } else if (state is OtpResent) {
             SnackbarUtils.showSnackBar(
               context,
-              "OTP has been resent.",
+              S.of(context).otpResent,
               isError: false,
-              title: "Success",
+              title: S.of(context).success,
             );
           }
         },
-
         builder: (context, state) {
           final cubit = context.read<OtpCubit>();
           final size = MediaQuery.of(context).size;
@@ -93,7 +97,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          "Your OTP is: ${state.otp.isNotEmpty ? state.otp : widget.otp}",
+                          "${S.of(context).youOtpIs}: ${state.otp.isNotEmpty ? state.otp : widget.otp}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -108,7 +112,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     SizedBox(height: size.height * 0.06),
 
                     Text(
-                      "Verification Code",
+                      S.of(context).verificationCode,
                       style: TextStyle(
                         fontSize: size.width * 0.06,
                         fontWeight: FontWeight.bold,
@@ -116,7 +120,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     SizedBox(height: size.height * 0.015),
                     Text(
-                      "Please enter the 4-digit code sent to your email.",
+                      S.of(context).PleaseEnterOtp,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: size.width * 0.04,
@@ -179,12 +183,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
                     SizedBox(height: size.height * 0.06),
 
-                    /// Timer + Resend
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Didn’t receive a code? ",
+                          S.of(context).didntReceiveACode,
                           style: TextStyle(
                             fontSize: size.width * 0.030,
                             color: Color(AppColors.primaryColor),
@@ -196,7 +199,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             cubit.resendOtp(widget.otp);
                           },
                           child: Text(
-                            "Resend",
+                            S.of(context).resend,
                             style: TextStyle(
                               color: Colors.grey,
                               fontWeight: FontWeight.w600,
@@ -205,7 +208,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           ),
                         )
                             : Text(
-                          " 00:${cubit.secondsRemaining.toString().padLeft(2, '0')} Sec",
+                          "00:${cubit.secondsRemaining.toString().padLeft(2, '0')} ${S.of(context).sec}",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: size.width * 0.030,
@@ -218,7 +221,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     SizedBox(height: size.height * 0.04),
 
                     GradientButton(
-                      title: state is OtpLoading ? "Verifying..." : "Verify",
+                      title: state is OtpLoading
+                          ? S.of(context).verify
+                          : S.of(context).verify,
                       onPressed: () {
                         final enteredOtp =
                         controllers.map((e) => e.text).join();

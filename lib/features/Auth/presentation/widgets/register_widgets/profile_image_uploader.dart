@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:task_tharad_tech/core/utils/app_colors.dart';
 import 'package:task_tharad_tech/core/widgets/image_picker_dialog.dart';
 
+import '../../../../../generated/l10n.dart';
+
 class ProfileImageUploader extends StatefulWidget {
   final void Function(File) onImagePicked;
   final String? initialImageUrl;
@@ -60,8 +62,8 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Profile Image',
+         Text(
+           S.of(context).profileImage,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

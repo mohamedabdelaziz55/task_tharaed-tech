@@ -6,9 +6,12 @@ import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
 import '../../cubit/profile_cubit.dart';
 import 'custom_app_bar.dart';
+import '../../../../generated/l10n.dart';
 
 class ProfileBody extends StatelessWidget {
-  ProfileBody({super.key});
+  final void Function(Locale) setLocale; // ✅ أضف هذا
+
+  ProfileBody({super.key, required this.setLocale}); // ✅ عدّل الكونستركتور
 
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -23,17 +26,17 @@ class ProfileBody extends StatelessWidget {
         if (state is ProfileError) {
           SnackbarUtils.showSnackBar(
             context,
-            'Error: ${state.message}',
+            '${S.of(context).error}: ${state.message}',
             isError: true,
-            title: "Error",
+            title: S.of(context).error,
           );
         }
         if (state is ProfileUpdated) {
           SnackbarUtils.showSnackBar(
             context,
-            'Profile updated successfully',
+            S.of(context).profileUpdatedSuccessfully,
             isError: false,
-            title: "Success",
+            title: S.of(context).success,
           );
         }
       },
@@ -45,8 +48,7 @@ class ProfileBody extends StatelessWidget {
         }
 
         if (state is ProfileLoaded || state is ProfileUpdated) {
-          final user =
-              cubit.user ?? (state is ProfileLoaded ? state.user : null);
+          final user = cubit.user ?? (state is ProfileLoaded ? state.user : null);
           if (user != null) {
             _usernameController.text = user.username ?? '';
             _emailController.text = user.email ?? '';
@@ -57,10 +59,8 @@ class ProfileBody extends StatelessWidget {
 
         return Column(
           children: [
-            const CustomAppBar(),
+             CustomAppBar(setLocale:setLocale,),
             const SizedBox(height: 15),
-
-            // ↓↓↓ Container full width ↓↓↓
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -88,71 +88,61 @@ class ProfileBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       CustomTextField(
-                        title: "User Name",
+                        title: S.of(context).userName,
                         controller: _usernameController,
                       ),
                       CustomTextField(
-                        title: "Email",
+                        title: S.of(context).email,
                         controller: _emailController,
                       ),
                       CustomTextField(
-                        title: "Old Password",
+                        title: S.of(context).oldPassword,
                         controller: _oldPasswordController,
                         isPasswordField: true,
                       ),
                       CustomTextField(
-                        title: "New Password",
+                        title: S.of(context).newPassword,
                         controller: _newPasswordController,
                         isPasswordField: true,
                       ),
                       CustomTextField(
-                        title: "Confirm New Password",
+                        title: S.of(context).confirmNewPassword,
                         controller: _confirmPasswordController,
                         isPasswordField: true,
                       ),
                       const SizedBox(height: 20),
                       GradientButton(
                         title: state is ProfileUpdating
-                            ? 'Updating...'
-                            : 'Update Profile',
+                            ? S.of(context).updating
+                            : S.of(context).updateProfile,
                         onPressed: state is ProfileUpdating
                             ? null
                             : () => cubit.updateProfile(
                           username: _usernameController.text.trim(),
                           email: _emailController.text.trim(),
-                          oldPassword: _oldPasswordController.text
-                              .trim()
-                              .isEmpty
+                          oldPassword: _oldPasswordController.text.trim().isEmpty
                               ? null
                               : _oldPasswordController.text.trim(),
-                          newPassword: _newPasswordController.text
-                              .trim()
-                              .isEmpty
+                          newPassword: _newPasswordController.text.trim().isEmpty
                               ? null
                               : _newPasswordController.text.trim(),
-                          confirmPassword: _confirmPasswordController
-                              .text
-                              .trim()
-                              .isEmpty
+                          confirmPassword: _confirmPasswordController.text.trim().isEmpty
                               ? null
                               : _confirmPasswordController.text.trim(),
                         ),
                       ),
                       TextButton(
                         onPressed: () async {
-                          final cubit = context.read<ProfileCubit>();
-                          await cubit.logout(context);
+                          await cubit.logout(context, setLocale); // ✅ تمرير setLocale
                         },
-                        child: const Text(
-                          "Logout",
-                          style: TextStyle(
+                        child: Text(
+                          S.of(context).logout,
+                          style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
                 ),

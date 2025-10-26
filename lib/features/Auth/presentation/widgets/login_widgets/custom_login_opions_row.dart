@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/utils/app_colors.dart';
+import '../../../../../generated/l10n.dart';
 
 class LoginOptionsRow extends StatelessWidget {
   final bool rememberMe;
@@ -29,7 +30,7 @@ class LoginOptionsRow extends StatelessWidget {
               ),
             ),
             Text(
-              "Remember me",
+              S.of(context).rememberMe,
               style: TextStyle(fontSize: size.width * 0.032),
             ),
           ],
@@ -37,7 +38,7 @@ class LoginOptionsRow extends StatelessWidget {
         TextButton(
           onPressed: () {},
           child: Text(
-            "Forgot Password?",
+            S.of(context).forgotPassword,
             style: TextStyle(
               fontSize: size.width * 0.032,
               color: Color(AppColors.primaryColor),

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/network/api_err.dart';
 import '../../../core/utils/helpers/pref_helper.dart';
+import '../../../generated/l10n.dart';
 import '../../Auth/data/model/user_model.dart';
 import '../../Auth/data/repo/auth_repo.dart';
 import '../../Auth/presentation/screens/login_screen.dart';
@@ -85,7 +86,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileError(msg));
     }
   }
-  Future<void> logout(BuildContext context) async {
+  Future<void> logout(BuildContext context, void Function(Locale) setLocale) async {
     try {
       await authRepo.logout();
       final prefs = await SharedPreferences.getInstance();
@@ -95,7 +96,9 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (_) => LoginScreen(setLocale: setLocale),
+          ),
               (route) => false,
         );
       }
@@ -103,7 +106,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileInitial());
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout failed: $e')),
+        SnackBar(content: Text("${S.current.logout}: $e")),
       );
     }
   }
