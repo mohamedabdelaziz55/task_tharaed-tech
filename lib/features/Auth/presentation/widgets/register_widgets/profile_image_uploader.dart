@@ -90,7 +90,7 @@ class _ProfileImageUploaderState extends State<ProfileImageUploader> {
             ),
             child: Container(
               width: double.infinity,
-              height: 150, // ✅ حجم ثابت وواضح
+              height: 150,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),

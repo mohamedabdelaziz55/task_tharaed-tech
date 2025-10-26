@@ -15,7 +15,6 @@ import '../data/repo/profile_repo.dart';
 
 part 'profile_state.dart';
 
-
 class ProfileCubit extends Cubit<ProfileState> {
   final AuthRepo authRepo;
   final ProfileRepo profileRepo;
@@ -86,7 +85,11 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileError(msg));
     }
   }
-  Future<void> logout(BuildContext context, void Function(Locale) setLocale) async {
+
+  Future<void> logout(
+    BuildContext context,
+    void Function(Locale) setLocale,
+  ) async {
     try {
       await authRepo.logout();
       final prefs = await SharedPreferences.getInstance();
@@ -96,20 +99,16 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       if (context.mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (_) => LoginScreen(setLocale: setLocale),
-          ),
-              (route) => false,
+          MaterialPageRoute(builder: (_) => LoginScreen(setLocale: setLocale)),
+          (route) => false,
         );
       }
 
       emit(ProfileInitial());
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${S.current.logout}: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("${S.current.logout}: $e")));
     }
   }
-
 }
-

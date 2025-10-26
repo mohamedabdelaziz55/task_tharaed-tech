@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/utils/snackbar_utils.dart';
+
+import '../../../../core/widgets/snackbar_utils.dart';
+import '../../../../generated/l10n.dart';
 import '../../../Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
 import '../../cubit/profile_cubit.dart';
 import 'custom_app_bar.dart';
-import '../../../../generated/l10n.dart';
 
-class ProfileBody extends StatelessWidget {
-  final void Function(Locale) setLocale; // ✅ أضف هذا
+class ProfileBody extends StatefulWidget {
+  final void Function(Locale) setLocale;
 
-  ProfileBody({super.key, required this.setLocale}); // ✅ عدّل الكونستركتور
+  const ProfileBody({super.key, required this.setLocale});
 
+  @override
+  State<ProfileBody> createState() => _ProfileBodyState();
+}
+
+class _ProfileBodyState extends State<ProfileBody> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  late ValueNotifier<bool> isArabicNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    isArabicNotifier = ValueNotifier<bool>(true);
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _oldPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    isArabicNotifier.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ProfileCubit>();
+
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileError) {
@@ -41,25 +68,19 @@ class ProfileBody extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        final cubit = context.read<ProfileCubit>();
-
-        if (state is ProfileLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state is ProfileLoaded || state is ProfileUpdated) {
-          final user = cubit.user ?? (state is ProfileLoaded ? state.user : null);
-          if (user != null) {
-            _usernameController.text = user.username ?? '';
-            _emailController.text = user.email ?? '';
-          }
+        if ((state is ProfileLoaded || state is ProfileUpdated) && cubit.user != null) {
+          _usernameController.text = cubit.user!.username ?? '';
+          _emailController.text = cubit.user!.email ?? '';
         }
 
         final imagePath = cubit.profileImage?.path ?? cubit.user?.image;
 
         return Column(
           children: [
-             CustomAppBar(setLocale:setLocale,),
+            CustomAppBar(
+              setLocale: widget.setLocale,
+              isArabicNotifier: isArabicNotifier,
+            ),
             const SizedBox(height: 15),
             Expanded(
               child: Container(
@@ -79,7 +100,9 @@ class ProfileBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: SingleChildScrollView(
+                child: state is ProfileLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   child: Column(
                     children: [
                       ProfileImageUploader(
@@ -133,7 +156,7 @@ class ProfileBody extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await cubit.logout(context, setLocale); // ✅ تمرير setLocale
+                          await cubit.logout(context, widget.setLocale);
                         },
                         child: Text(
                           S.of(context).logout,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/utils/helpers/helper_methods.dart';
 import 'features/Auth/cubits/login_cubit/login_cubit.dart';
 import 'features/Auth/presentation/screens/login_screen.dart';
@@ -12,29 +13,40 @@ void main() async {
 
   final isLoggedIn = await LoginCubit.checkLoggedIn();
 
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  final prefs = await SharedPreferences.getInstance();
+  final savedLangCode = prefs.getString('locale') ?? 'en';
+
+  runApp(MyApp(isLoggedIn: isLoggedIn, initialLocale: Locale(savedLangCode)));
 }
 
 class MyApp extends StatefulWidget {
   final bool isLoggedIn;
-  const MyApp({super.key, required this.isLoggedIn});
+  final Locale initialLocale;
+  const MyApp({super.key, required this.isLoggedIn, required this.initialLocale});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = const Locale('en'); // الوضع الافتراضي انجليزي
+  late Locale _locale;
 
-  void setLocale(Locale locale) {
+  @override
+  void initState() {
+    super.initState();
+    _locale = widget.initialLocale;
+  }
+
+  void setLocale(Locale locale) async {
     setState(() {
       _locale = locale;
     });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('locale', locale.languageCode);
   }
 
   @override
   Widget build(BuildContext context) {
-    // اختيار الخط حسب اللغة
     final String fontFamily = _locale.languageCode == 'ar' ? 'Almarai' : 'PlayfairDisplay';
 
     return MaterialApp(

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
-import 'package:task_tharad_tech/core/utils/snackbar_utils.dart';
+import 'package:task_tharad_tech/core/widgets/snackbar_utils.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/otp_verify.dart';
 import '../../../../../generated/l10n.dart';

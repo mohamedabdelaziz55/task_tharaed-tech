@@ -2,24 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../../generated/l10n.dart';
 
-class CustomAppBar extends StatefulWidget {
+class CustomAppBar extends StatelessWidget {
   final Function(Locale) setLocale;
+  final ValueNotifier<bool> isArabicNotifier;
 
-  const CustomAppBar({super.key, required this.setLocale});
-
-  @override
-  State<CustomAppBar> createState() => _CustomAppBarState();
-}
-
-class _CustomAppBarState extends State<CustomAppBar> {
-  bool isArabic = true;
-
-  void _toggleLanguage() {
-    setState(() {
-      isArabic = !isArabic;
-    });
-    widget.setLocale(isArabic ? const Locale('ar') : const Locale('en'));
-  }
+  const CustomAppBar({
+    super.key,
+    required this.setLocale,
+    required this.isArabicNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +21,26 @@ class _CustomAppBarState extends State<CustomAppBar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
-          ElevatedButton(
-            onPressed: _toggleLanguage,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white24,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              elevation: 0,
-            ),
-            child: Text(
-              isArabic ? "AR" : "EN",
-              style: const TextStyle(color: Colors.white),
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: isArabicNotifier,
+            builder: (context, isArabic, _) {
+              return ElevatedButton(
+                onPressed: () {
+                  isArabicNotifier.value = !isArabic;
+                  setLocale(isArabicNotifier.value ? const Locale('ar') : const Locale('en'));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white24,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  elevation: 0,
+                ),
+                child: Text(isArabic ? "AR" : "EN", style: const TextStyle(color: Colors.white)),
+              );
+            },
           ),
-
           Text(
             S.of(context).profile,
             style: TextStyle(

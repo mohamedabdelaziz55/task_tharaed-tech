@@ -5,7 +5,7 @@ import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
-import '../../../../core/utils/snackbar_utils.dart';
+import '../../../../core/widgets/snackbar_utils.dart';
 import '../../cubits/otp_cubit/otp_cubit.dart';
 import '../widgets/register_widgets/gradient_button.dart';
 import '../../../../generated/l10n.dart';
@@ -50,6 +50,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       child: BlocConsumer<OtpCubit, OtpState>(
         listener: (context, state) {
           if (state is OtpSuccess) {
+            SnackbarUtils.showSnackBar(
+              context,
+              S.of(context).otpResent,
+              isError: false,
+              title: S.of(context).registrationSuccess,
+            );
             navigateTo(
               LoginScreen(setLocale: widget.setLocale),
               canPop: false,
