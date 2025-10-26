@@ -6,7 +6,7 @@ import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/widgets/register_widgets/custom_text.dart';
-import '../../../cubits/login_cubit.dart';
+import '../../../cubits/login_cubit/login_cubit.dart';
 import 'custom_login_opions_row.dart';
 
 class LoginBody extends StatefulWidget {

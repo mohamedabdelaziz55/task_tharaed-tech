@@ -1,4 +1,3 @@
-// lib/features/Auth/presentation/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
@@ -6,7 +5,7 @@ import 'package:task_tharad_tech/core/utils/snackbar_utils.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';
 import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
 
-import '../../cubits/login_cubit.dart';
+import '../../cubits/login_cubit/login_cubit.dart';
 import '../widgets/login_widgets/login_body.dart';
 
 class LoginScreen extends StatelessWidget {
