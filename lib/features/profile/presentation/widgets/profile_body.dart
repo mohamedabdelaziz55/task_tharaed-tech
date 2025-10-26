@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
+import '../../../../core/utils/helpers/helper_methods.dart';
 import '../../../Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
@@ -131,12 +133,23 @@ class ProfileBody extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () async => await PrefHelper.clearUserData(),
+                        onPressed: () async {
+                          final cubit = context.read<ProfileCubit>();
+                          await cubit.logout(context);
+                          await PrefHelper.clearUserData();
+                          if (context.mounted) {
+                            navigateTo(LoginScreen(),canPop: false);
+                          }
+                        },
                         child: const Text(
                           "Logout",
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+
                     ],
                   ),
                 ),

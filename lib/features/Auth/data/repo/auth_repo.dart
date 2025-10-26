@@ -121,4 +121,28 @@ class AuthRepo {
     currentUser = localUser;
     return localUser;
   }
+
+
+  Future<void> logout() async {
+    try {
+      final response = await apiService.delete(
+        '${ApiConstance.baseUrl}auth/logout',
+        {},
+      );
+
+      print('--- Logout API Response ---');
+      print(response);
+
+      // Clear local saved data
+      await PrefHelper.clearUserData();
+      currentUser = null;
+    } on DioError catch (e) {
+      print('--- Logout Error ---');
+      print(e.response?.data ?? e.message);
+      throw ApiExceptions.handleError(e);
+    } catch (e) {
+      throw ApiError(message: e.toString());
+    }
+  }
+
 }

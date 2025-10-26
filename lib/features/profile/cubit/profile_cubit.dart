@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/network/api_err.dart';
@@ -80,6 +81,16 @@ class ProfileCubit extends Cubit<ProfileState> {
     } catch (e) {
       String msg = e is ApiError ? e.message ?? 'API Error' : e.toString();
       emit(ProfileError(msg));
+    }
+  }
+  Future<void> logout(BuildContext context) async {
+    try {
+      await authRepo.logout(); // استدعاء الميثود من الريبو
+      Navigator.of(context).pushReplacementNamed('/login'); // ارجاع المستخدم لشاشة الدخول
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
     }
   }
 }
