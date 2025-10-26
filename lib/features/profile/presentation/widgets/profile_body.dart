@@ -9,6 +9,7 @@ import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
 import 'custom_app_bar.dart';
 
+
 class ProfileBody extends StatefulWidget {
   const ProfileBody({super.key});
 
@@ -24,11 +25,16 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
 
   UserModel? user;
   bool isLoading = true;
+  bool isUpdating = false;
 
   final AuthRepo authRepo = AuthRepo();
+  final ProfileRepo profileRepo = ProfileRepo();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   Future<void> _loadUserProfile() async {
     try {
@@ -54,7 +60,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     } catch (e) {
       String errorMessage = e.toString();
       if (e is ApiError) errorMessage = e.message ?? 'API Error';
-      print(" Failed to load user: $errorMessage");
+      print("Failed to load user: $errorMessage");
 
       final savedData = await PrefHelper.getUserData();
       if (savedData != null) {
@@ -71,7 +77,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
           isLoading = false;
         });
       } else {
-        print(" No saved user data found");
+        print("No saved user data found");
         setState(() => isLoading = false);
       }
     }
@@ -80,19 +86,50 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
   Future<void> _uploadProfileImage(File image) async {
     try {
       print("Uploading image: ${image.path}");
-      await PrefHelper.saveUserData(
-        username: _usernameController.text,
-        email: _emailController.text,
-        imageUrl: image.path, // نحفظ مسار الصورة المحلية مؤقتًا
-        token: user?.token ?? '',
-      );
       setState(() {
         profileImage = image;
-        user = user?.copyWith(image: image.path);
       });
-      print("Profile image saved locally: ${image.path}");
     } catch (e) {
       print("Upload failed: $e");
+    }
+  }
+
+  Future<void> _updateProfile() async {
+    if (isUpdating) return;
+
+    setState(() => isUpdating = true);
+
+    try {
+      final updatedUser = await profileRepo.updateProfile(
+        username: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
+        oldPassword: _oldPasswordController.text.trim().isNotEmpty
+            ? _oldPasswordController.text.trim()
+            : null,
+        newPassword: _newPasswordController.text.trim().isNotEmpty
+            ? _newPasswordController.text.trim()
+            : null,
+        confirmPassword: _confirmPasswordController.text.trim().isNotEmpty
+            ? _confirmPasswordController.text.trim()
+            : null,
+        image: profileImage,
+      );
+
+      setState(() {
+        user = updatedUser;
+        isUpdating = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Profile updated successfully')),
+      );
+    } catch (e) {
+      setState(() => isUpdating = false);
+      String errorMsg = e.toString();
+      if (e is ApiError) errorMsg = e.message ?? 'API Error';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Failed to update: $errorMsg')),
+      );
     }
   }
 
@@ -127,6 +164,9 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     _controller.dispose();
     _usernameController.dispose();
     _emailController.dispose();
+    _oldPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -190,20 +230,23 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                       ),
                       SizedBox(height: h * 0.015),
 
-                      const CustomTextField(
+                      CustomTextField(
                         title: "Old Password",
+                        controller: _oldPasswordController,
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.015),
 
-                      const CustomTextField(
+                      CustomTextField(
                         title: "New Password",
+                        controller: _newPasswordController,
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.015),
 
-                      const CustomTextField(
+                      CustomTextField(
                         title: "Confirm New Password",
+                        controller: _confirmPasswordController,
                         isPasswordField: true,
                       ),
                       SizedBox(height: h * 0.03),
@@ -211,22 +254,8 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: w * 0.15),
                         child: GradientButton(
-                          title: 'Update Profile',
-                          onPressed: () async {
-                            print("Updated username: ${_usernameController.text}");
-                            print("Updated email: ${_emailController.text}");
-
-                            await PrefHelper.saveUserData(
-                              username: _usernameController.text,
-                              email: _emailController.text,
-                              imageUrl: imageUrl,
-                              token: user?.token ?? '',
-                            );
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Profile updated locally ')),
-                            );
-                          },
+                          title: isUpdating ? 'Updating...' : 'Update Profile',
+                          onPressed: isUpdating ? null : _updateProfile,
                         ),
                       ),
                       SizedBox(height: h * 0.015),
