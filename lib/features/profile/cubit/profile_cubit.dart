@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/network/api_err.dart';
 import '../../../core/utils/helpers/pref_helper.dart';
 import '../../Auth/data/model/user_model.dart';
 import '../../Auth/data/repo/auth_repo.dart';
+import '../../Auth/presentation/screens/login_screen.dart';
 import '../data/repo/profile_repo.dart';
 
 part 'profile_state.dart';
@@ -85,13 +87,26 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
   Future<void> logout(BuildContext context) async {
     try {
-      await authRepo.logout(); // استدعاء الميثود من الريبو
-      Navigator.of(context).pushReplacementNamed('/login'); // ارجاع المستخدم لشاشة الدخول
+      await authRepo.logout();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.remove('userToken');
+      await PrefHelper.clearUserData();
+
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+              (route) => false,
+        );
+      }
+
+      emit(ProfileInitial());
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Logout failed: $e')),
       );
     }
   }
+
 }
 

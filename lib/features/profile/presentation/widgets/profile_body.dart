@@ -136,10 +136,6 @@ class ProfileBody extends StatelessWidget {
                         onPressed: () async {
                           final cubit = context.read<ProfileCubit>();
                           await cubit.logout(context);
-                          await PrefHelper.clearUserData();
-                          if (context.mounted) {
-                            navigateTo(LoginScreen(),canPop: false);
-                          }
                         },
                         child: const Text(
                           "Logout",
@@ -149,6 +145,7 @@ class ProfileBody extends StatelessWidget {
                           ),
                         ),
                       ),
+
 
                     ],
                   ),
