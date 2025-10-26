@@ -6,6 +6,7 @@ import 'package:task_tharad_tech/core/utils/image_assets.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
 import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
+import '../../../../core/utils/snackbar_utils.dart';
 import '../../cubits/otp_cubit/otp_cubit.dart';
 import '../widgets/register_widgets/gradient_button.dart';
 
@@ -49,14 +50,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           if (state is OtpSuccess) {
             navigateTo(const LoginScreen(), canPop: false);
           } else if (state is OtpError) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            SnackbarUtils.showSnackBar(
+              context,
+              state.message,
+              isError: true,
+              title: "Error",
+            );
           } else if (state is OtpResent) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("OTP has been resent.")),
+            SnackbarUtils.showSnackBar(
+              context,
+              "OTP has been resent.",
+              isError: false,
+              title: "Success",
             );
           }
         },
+
         builder: (context, state) {
           final cubit = context.read<OtpCubit>();
           final size = MediaQuery.of(context).size;

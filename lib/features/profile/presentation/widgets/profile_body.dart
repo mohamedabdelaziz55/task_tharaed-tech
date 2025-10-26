@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
-import '../../../../core/utils/helpers/helper_methods.dart';
+import '../../../../core/utils/snackbar_utils.dart';
 import '../../../Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
 import '../../cubit/profile_cubit.dart';
 import 'custom_app_bar.dart';
-import '../../../../core/utils/helpers/pref_helper.dart';
 
 class ProfileBody extends StatelessWidget {
   ProfileBody({super.key});
@@ -23,12 +21,20 @@ class ProfileBody extends StatelessWidget {
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
         if (state is ProfileError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
+          SnackbarUtils.showSnackBar(
+            context,
+            'Error: ${state.message}',
+            isError: true,
+            title: "Error",
+          );
         }
         if (state is ProfileUpdated) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated successfully')));
+          SnackbarUtils.showSnackBar(
+            context,
+            'Profile updated successfully',
+            isError: false,
+            title: "Success",
+          );
         }
       },
       builder: (context, state) {
