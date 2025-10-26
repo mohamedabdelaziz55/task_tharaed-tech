@@ -93,8 +93,6 @@ class _RegisterBodyState extends State<RegisterBody> {
                   onImagePicked: (file) => setState(() => selectedImage = file),
                 ),
                 SizedBox(height: size.height * 0.02),
-
-                // ✅ Add Validators
                 CustomTextField(
                   title: 'User Name',
                   controller: usernameController,
