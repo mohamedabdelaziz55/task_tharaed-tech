@@ -7,8 +7,9 @@ class CustomTextField extends StatefulWidget {
     super.key,
     required this.title,
     this.controller,
-    this.isPasswordField = false,
+    this.isPasswordField = false, this.validator,
   });
+  final String? Function(String?)? validator;
 
   final String title;
   final TextEditingController? controller;
@@ -37,6 +38,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         const SizedBox(height: 6),
         TextFormField(
+
+          validator: widget.validator,
           controller: widget.controller,
           obscureText: widget.isPasswordField ? obscureText : false,
           keyboardType: widget.isPasswordField

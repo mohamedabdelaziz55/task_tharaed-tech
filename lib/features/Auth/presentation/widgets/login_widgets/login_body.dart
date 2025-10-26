@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/register_screen.dart';
 import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
@@ -20,7 +21,24 @@ class _LoginBodyState extends State<LoginBody> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController(text: "mm@mm.com");
   final passwordController = TextEditingController(text: "12345678");
+  bool rememberMe = false;
+@override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
 
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedRemember = prefs.getBool('rememberMe') ?? false;
+    if (savedRemember) {
+      emailController.text = prefs.getString('savedEmail') ?? '';
+      passwordController.text = prefs.getString('savedPassword') ?? '';
+      setState(() {
+        rememberMe = true;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -35,11 +53,48 @@ class _LoginBodyState extends State<LoginBody> {
             SizedBox(height: size.height * 0.06),
             Text("Login", style: TextStyle(fontSize: size.width * 0.06, fontWeight: FontWeight.w700)),
             SizedBox(height: size.height * 0.045),
-            CustomTextField(title: "Email", controller: emailController),
+
+            CustomTextField(
+              title: "Email",
+              controller: emailController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Email cannot be empty";
+                }
+                if (!value.contains('@') || !value.contains('.')) {
+                  return "Enter a valid email address";
+                }
+                return null;
+              },
+            ),
+
             SizedBox(height: size.height * 0.01),
-            CustomTextField(title: "Password", isPasswordField: true, controller: passwordController),
+
+            CustomTextField(
+
+              title: "Password",
+              isPasswordField: true,
+              controller: passwordController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Password cannot be empty";
+                }
+                if (value.length < 8) {
+                  return "Password must be at least 8 characters";
+                }
+                return null;
+              },
+            ),
+
             SizedBox(height: size.height * 0.01),
-            const LoginOptionsRow(),
+            LoginOptionsRow(
+              rememberMe: rememberMe,
+              onChanged: (value) {
+                setState(() {
+                  rememberMe = value ?? false;
+                });
+              },
+            ),
             SizedBox(height: size.height * 0.04),
             GradientButton(
               title: 'Login',
@@ -48,13 +103,15 @@ class _LoginBodyState extends State<LoginBody> {
                   context.read<LoginCubit>().loginUser(
                     emailController.text,
                     passwordController.text,
+                    rememberMe: rememberMe,
                   );
                 }
               },
             ),
+
             SizedBox(height: size.height * 0.03),
             CustomText(
-              text1: "Don't have an account?",
+              text1: "Don't have an account",
               text2: 'Create a new account',
               onPressed: () => navigateTo(const RegisterScreen(), canPop: false),
             ),

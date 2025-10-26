@@ -1,17 +1,15 @@
-
 import 'package:flutter/material.dart';
-
 import '../../../../../core/utils/app_colors.dart';
 
-class LoginOptionsRow extends StatefulWidget {
-  const LoginOptionsRow({super.key});
+class LoginOptionsRow extends StatelessWidget {
+  final bool rememberMe;
+  final ValueChanged<bool?> onChanged;
 
-  @override
-  State<LoginOptionsRow> createState() => _LoginOptionsRowState();
-}
-
-class _LoginOptionsRowState extends State<LoginOptionsRow> {
-  bool isChecked = false;
+  const LoginOptionsRow({
+    super.key,
+    required this.rememberMe,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +23,8 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
             Transform.scale(
               scale: .8,
               child: Checkbox(
-                value: isChecked,
-                onChanged: (value) {
-                  setState(() {
-                    isChecked = value ?? false;
-                  });
-                },
+                value: rememberMe,
+                onChanged: onChanged,
                 activeColor: Color(AppColors.primaryColor),
               ),
             ),
@@ -41,8 +35,7 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
           ],
         ),
         TextButton(
-          onPressed: () {
-          },
+          onPressed: () {},
           child: Text(
             "Forgot Password?",
             style: TextStyle(
@@ -55,5 +48,3 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
     );
   }
 }
-
-
