@@ -1,37 +1,32 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
-import 'package:task_tharad_tech/features/Auth/presentation/screens/login_screen.dart';
+import 'package:task_tharad_tech/features/profile/presentation/screens/profile_screen.dart';
 
+import 'core/utils/helpers/helper_methods.dart';
+import 'features/Auth/cubits/login_cubit/login_cubit.dart';
+import 'features/Auth/presentation/screens/login_screen.dart';
 
-void main()async {
-  final dio = Dio();
-  try {
-    final response = await dio.post(
-      'https://flutter.tharadtech.com/api/auth/login',
-      data: {'email': 'test@mail.com', 'password': '123456'},
-    );
-    print(response.data);
-  } catch (e) {
-    print(e);
-  }
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final isLoggedIn = await LoginCubit.checkLoggedIn();
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-       navigatorKey: navKey,
+      navigatorKey: navKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: "PlayfairDisplay",
-        scaffoldBackgroundColor: Colors.white
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: const LoginScreen(),
+      home: isLoggedIn ? const ProfileScreen() : const LoginScreen(),
     );
   }
 }
-
