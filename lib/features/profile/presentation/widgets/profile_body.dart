@@ -97,21 +97,55 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
   Future<void> _updateProfile() async {
     if (isUpdating) return;
 
+    final oldPass = _oldPasswordController.text.trim();
+    final newPass = _newPasswordController.text.trim();
+    final confirmPass = _confirmPasswordController.text.trim();
+
+    // ✅ تحقق محلي من حقول الباسورد
+    final bool passwordFieldsFilled =
+        oldPass.isNotEmpty || newPass.isNotEmpty || confirmPass.isNotEmpty;
+
+    if (passwordFieldsFilled) {
+      // لو دخل واحدة بس من الثلاثة
+      if (oldPass.isEmpty || newPass.isEmpty || confirmPass.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ من فضلك أدخل جميع حقول كلمة المرور لتغييرها.'),
+          ),
+        );
+        return;
+      }
+
+      // لو الجديد لا يساوي التأكيد
+      if (newPass != confirmPass) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ كلمة المرور الجديدة غير متطابقة.'),
+          ),
+        );
+        return;
+      }
+
+      // لو الجديد نفس القديم (مش منطقي)
+      if (newPass == oldPass) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⚠️ كلمة المرور الجديدة يجب أن تختلف عن القديمة.'),
+          ),
+        );
+        return;
+      }
+    }
+
     setState(() => isUpdating = true);
 
     try {
       final updatedUser = await profileRepo.updateProfile(
         username: _usernameController.text.trim(),
         email: _emailController.text.trim(),
-        oldPassword: _oldPasswordController.text.trim().isNotEmpty
-            ? _oldPasswordController.text.trim()
-            : null,
-        newPassword: _newPasswordController.text.trim().isNotEmpty
-            ? _newPasswordController.text.trim()
-            : null,
-        confirmPassword: _confirmPasswordController.text.trim().isNotEmpty
-            ? _confirmPasswordController.text.trim()
-            : null,
+        oldPassword: passwordFieldsFilled ? oldPass : null,
+        newPassword: passwordFieldsFilled ? newPass : null,
+        confirmPassword: passwordFieldsFilled ? confirmPass : null,
         image: profileImage,
       );
 
@@ -121,18 +155,17 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Profile updated successfully')),
+        const SnackBar(content: Text('✅ تم تحديث الملف الشخصي بنجاح')),
       );
     } catch (e) {
       setState(() => isUpdating = false);
       String errorMsg = e.toString();
       if (e is ApiError) errorMsg = e.message ?? 'API Error';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Failed to update: $errorMsg')),
+        SnackBar(content: Text('❌ فشل التحديث: $errorMsg')),
       );
     }
   }
-
   @override
   void initState() {
     super.initState();
