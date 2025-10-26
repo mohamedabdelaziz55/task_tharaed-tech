@@ -22,22 +22,19 @@ class _LoginBodyState extends State<LoginBody> {
   final emailController = TextEditingController(text: "mm@mm.com");
   final passwordController = TextEditingController(text: "12345678");
   bool rememberMe = false;
-@override
+  @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
+    _loadCredentialsFromCubit();
   }
 
-  Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedRemember = prefs.getBool('rememberMe') ?? false;
-    if (savedRemember) {
-      emailController.text = prefs.getString('savedEmail') ?? '';
-      passwordController.text = prefs.getString('savedPassword') ?? '';
-      setState(() {
-        rememberMe = true;
-      });
-    }
+  Future<void> _loadCredentialsFromCubit() async {
+    final credentials = await context.read<LoginCubit>().loadSavedCredentials();
+    setState(() {
+      rememberMe = credentials['rememberMe'];
+      emailController.text = credentials['email'];
+      passwordController.text = credentials['password'];
+    });
   }
   @override
   Widget build(BuildContext context) {

@@ -51,4 +51,15 @@ class LoginCubit extends Cubit<LoginState> {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
   }
+  Future<Map<String, dynamic>> loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedRemember = prefs.getBool('rememberMe') ?? false;
+    final savedEmail = prefs.getString('savedEmail') ?? '';
+    final savedPassword = prefs.getString('savedPassword') ?? '';
+    return {
+      'rememberMe': savedRemember,
+      'email': savedEmail,
+      'password': savedPassword,
+    };
+  }
 }
