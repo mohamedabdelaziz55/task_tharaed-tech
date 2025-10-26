@@ -1,3 +1,4 @@
+// lib/features/Auth/data/repo/auth_repo.dart
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:task_tharad_tech/core/error/exceptions.dart';
@@ -70,6 +71,22 @@ class AuthRepo {
     }
   }
 
+  Future<Map<String, dynamic>> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final fullUrl = '${ApiConstance.baseUrl}otp?email=$email&otp=$otp';
+
+      final response = await apiService.getRequest(fullUrl);
+      return response;
+    } on DioError catch (e) {
+      throw ApiExceptions.handleError(e);
+    } catch (e) {
+      throw ApiError(message: e.toString());
+    }
+  }
+
   Future<UserModel?> getUserProfile() async {
     try {
       final response = await apiService.getRequest(
@@ -105,6 +122,3 @@ class AuthRepo {
     return localUser;
   }
 }
-
-
-
