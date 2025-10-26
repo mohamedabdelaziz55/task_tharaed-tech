@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_tharad_tech/features/Auth/presentation/screens/register_screen.dart';
 import 'package:task_tharad_tech/core/utils/helpers/helper_methods.dart';
 import 'package:task_tharad_tech/core/utils/image_assets.dart';
