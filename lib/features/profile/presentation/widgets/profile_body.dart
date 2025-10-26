@@ -26,17 +26,19 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
   bool isLoading = true;
 
   final AuthRepo authRepo = AuthRepo();
+  final ProfileRepo profileRepo = ProfileRepo();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   Future<void> _loadUserProfile() async {
     try {
       final fetchedUser = await authRepo.getUserProfile();
 
-      if (fetchedUser == null) {
-        throw Exception("User data is null");
-      }
+      if (fetchedUser == null) throw Exception("User data is null");
 
       setState(() {
         user = fetchedUser;
@@ -52,13 +54,11 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
         token: fetchedUser.token ?? '',
       );
     } catch (e) {
-      String errorMessage = e.toString();
-      if (e is ApiError) errorMessage = e.message ?? 'API Error';
-      print(" Failed to load user: $errorMessage");
+      String errorMessage = e is ApiError ? e.message ?? 'API Error' : e.toString();
+      print("Failed to load user: $errorMessage");
 
       final savedData = await PrefHelper.getUserData();
       if (savedData != null) {
-        print("Loaded user data from local storage");
         setState(() {
           _usernameController.text = savedData['username'] ?? '';
           _emailController.text = savedData['email'] ?? '';
@@ -71,7 +71,6 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
           isLoading = false;
         });
       } else {
-        print(" No saved user data found");
         setState(() => isLoading = false);
       }
     }
@@ -79,20 +78,54 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
 
   Future<void> _uploadProfileImage(File image) async {
     try {
-      print("Uploading image: ${image.path}");
       await PrefHelper.saveUserData(
         username: _usernameController.text,
         email: _emailController.text,
-        imageUrl: image.path, // نحفظ مسار الصورة المحلية مؤقتًا
+        imageUrl: image.path,
         token: user?.token ?? '',
       );
       setState(() {
         profileImage = image;
         user = user?.copyWith(image: image.path);
       });
-      print("Profile image saved locally: ${image.path}");
     } catch (e) {
       print("Upload failed: $e");
+    }
+  }
+
+  Future<void> _updateProfile() async {
+    try {
+      setState(() => isLoading = true);
+
+      final updatedUser = await profileRepo.updateProfile(
+        username: _usernameController.text,
+        email: _emailController.text,
+        oldPassword: _oldPasswordController.text,
+        newPassword: _newPasswordController.text,
+        confirmPassword: _confirmPasswordController.text,
+        image: profileImage,
+      );
+
+      await PrefHelper.saveUserData(
+        username: updatedUser.username,
+        email: updatedUser.email,
+        imageUrl: updatedUser.image,
+        token: updatedUser.token ?? '',
+      );
+
+      setState(() {
+        user = updatedUser;
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Profile updated successfully')),
+      );
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Failed to update: $e')),
+      );
     }
   }
 
@@ -101,25 +134,12 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     super.initState();
     _loadUserProfile();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    Future.delayed(const Duration(milliseconds: 200), () {
-      _controller.forward();
-    });
+    Future.delayed(const Duration(milliseconds: 200), () => _controller.forward());
   }
 
   @override
@@ -127,6 +147,9 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     _controller.dispose();
     _usernameController.dispose();
     _emailController.dispose();
+    _oldPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -136,9 +159,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     final h = size.height;
     final w = size.width;
 
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (isLoading) return const Center(child: CircularProgressIndicator());
 
     final imageUrl = profileImage?.path ?? user?.image;
 
@@ -147,7 +168,6 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
       children: [
         Padding(padding: EdgeInsets.all(w * 0.04), child: const CustomAppBar()),
         SizedBox(height: h * 0.015),
-
         Expanded(
           child: Container(
             width: double.infinity,
@@ -159,10 +179,7 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
               ),
             ),
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: w * 0.06,
-                vertical: h * 0.025,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: w * 0.06, vertical: h * 0.025),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: SlideTransition(
@@ -172,62 +189,32 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
                     children: [
                       ProfileImageUploader(
                         initialImageUrl: imageUrl,
-                        onImagePicked: (file) async {
-                          await _uploadProfileImage(file);
-                        },
+                        onImagePicked: (file) async => await _uploadProfileImage(file),
                       ),
                       SizedBox(height: h * 0.03),
 
-                      CustomTextField(
-                        title: "User Name",
-                        controller: _usernameController,
-                      ),
+                      CustomTextField(title: "User Name", controller: _usernameController),
+                      SizedBox(height: h * 0.015),
+
+                      CustomTextField(title: "Email", controller: _emailController),
+                      SizedBox(height: h * 0.015),
+
+                      CustomTextField(title: "Old Password", isPasswordField: true, controller: _oldPasswordController),
+                      SizedBox(height: h * 0.015),
+
+                      CustomTextField(title: "New Password", isPasswordField: true, controller: _newPasswordController),
                       SizedBox(height: h * 0.015),
 
                       CustomTextField(
-                        title: "Email",
-                        controller: _emailController,
-                      ),
-                      SizedBox(height: h * 0.015),
-
-                      const CustomTextField(
-                        title: "Old Password",
-                        isPasswordField: true,
-                      ),
-                      SizedBox(height: h * 0.015),
-
-                      const CustomTextField(
-                        title: "New Password",
-                        isPasswordField: true,
-                      ),
-                      SizedBox(height: h * 0.015),
-
-                      const CustomTextField(
                         title: "Confirm New Password",
                         isPasswordField: true,
+                        controller: _confirmPasswordController,
                       ),
                       SizedBox(height: h * 0.03),
 
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: w * 0.15),
-                        child: GradientButton(
-                          title: 'Update Profile',
-                          onPressed: () async {
-                            print("Updated username: ${_usernameController.text}");
-                            print("Updated email: ${_emailController.text}");
-
-                            await PrefHelper.saveUserData(
-                              username: _usernameController.text,
-                              email: _emailController.text,
-                              imageUrl: imageUrl,
-                              token: user?.token ?? '',
-                            );
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Profile updated locally ')),
-                            );
-                          },
-                        ),
+                        child: GradientButton(title: 'Update Profile', onPressed: _updateProfile),
                       ),
                       SizedBox(height: h * 0.015),
 

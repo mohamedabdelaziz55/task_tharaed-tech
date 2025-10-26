@@ -59,7 +59,7 @@ class _LoginBodyState extends State<LoginBody> {
   void initState() {
     super.initState();
     emailController.text = "mm@mm.com";
-    passwordController.text = "123123123";
+    passwordController.text = "12345678";
   }
 
   @override
