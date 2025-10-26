@@ -7,6 +7,7 @@ import '../../../../core/utils/helpers/pref_helper.dart';
 import '../../../Auth/presentation/widgets/register_widgets/custom_text_field.dart';
 import '../../../Auth/presentation/widgets/register_widgets/gradient_button.dart';
 import '../../../Auth/presentation/widgets/register_widgets/profile_image_uploader.dart';
+import '../../data/repo/profile_repo.dart';
 import 'custom_app_bar.dart';
 
 
@@ -101,36 +102,32 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
     final newPass = _newPasswordController.text.trim();
     final confirmPass = _confirmPasswordController.text.trim();
 
-    // ✅ تحقق محلي من حقول الباسورد
     final bool passwordFieldsFilled =
         oldPass.isNotEmpty || newPass.isNotEmpty || confirmPass.isNotEmpty;
 
     if (passwordFieldsFilled) {
-      // لو دخل واحدة بس من الثلاثة
+
       if (oldPass.isEmpty || newPass.isEmpty || confirmPass.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('⚠️ من فضلك أدخل جميع حقول كلمة المرور لتغييرها.'),
+            content: Text('من فضلك أدخل جميع حقول كلمة المرور لتغييرها.'),
           ),
         );
         return;
       }
-
-      // لو الجديد لا يساوي التأكيد
       if (newPass != confirmPass) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('❌ كلمة المرور الجديدة غير متطابقة.'),
+            content: Text(' كلمة المرور الجديدة غير متطابقة.'),
           ),
         );
         return;
       }
 
-      // لو الجديد نفس القديم (مش منطقي)
       if (newPass == oldPass) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('⚠️ كلمة المرور الجديدة يجب أن تختلف عن القديمة.'),
+            content: Text(' كلمة المرور الجديدة يجب أن تختلف عن القديمة.'),
           ),
         );
         return;
@@ -155,14 +152,14 @@ class _ProfileBodyState extends State<ProfileBody> with TickerProviderStateMixin
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ تم تحديث الملف الشخصي بنجاح')),
+        const SnackBar(content: Text('تم تحديث الملف الشخصي بنجاح')),
       );
     } catch (e) {
       setState(() => isUpdating = false);
       String errorMsg = e.toString();
       if (e is ApiError) errorMsg = e.message ?? 'API Error';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ فشل التحديث: $errorMsg')),
+        SnackBar(content: Text(' فشل التحديث: $errorMsg')),
       );
     }
   }
