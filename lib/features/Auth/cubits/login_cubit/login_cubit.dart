@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/network/api_err.dart';
 import '../../data/model/user_model.dart';
 import '../../data/repo/auth_repo.dart';
 
@@ -21,8 +22,6 @@ class LoginCubit extends Cubit<LoginState> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userToken', user.token!);
-
-        // ✅ حفظ بيانات التذكر
         if (rememberMe) {
           await prefs.setBool('rememberMe', true);
           await prefs.setString('savedEmail', email);
@@ -38,19 +37,28 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginFailure("Invalid credentials"));
       }
     } catch (e) {
-      emit(LoginFailure("Login failed: $e"));
+      String errorMessage = 'An error occurred while logging in. Please try again.';
+      if (e is ApiError && e.message != null) {
+        errorMessage = e.message!;
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Please check your internet connection.';
+      }
+      emit(LoginFailure(errorMessage));
     }
   }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('userToken');
     emit(LoginInitial());
   }
+
   static Future<bool> checkLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
   }
+
   Future<Map<String, dynamic>> loadSavedCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     final savedRemember = prefs.getBool('rememberMe') ?? false;

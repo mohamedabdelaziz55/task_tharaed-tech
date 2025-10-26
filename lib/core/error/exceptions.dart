@@ -6,47 +6,46 @@ class ApiExceptions {
     switch (error.type) {
       case DioExceptionType.cancel:
         return ApiError(
-          message: 'Request to API server was cancelled: ${error.message}',
+          message: 'Request was cancelled. Please try again.',
         );
+
       case DioExceptionType.connectionTimeout:
-        return ApiError(
-          message: 'Connection timeout with API server: ${error.message}',
-        );
       case DioExceptionType.sendTimeout:
-        return ApiError(
-          message:
-              'Send timeout in connection with API server: ${error.message}',
-        );
       case DioExceptionType.receiveTimeout:
         return ApiError(
-          message:
-              'Receive timeout in connection with API server: ${error.message}',
+          message: 'Connection to the server timed out. Please check your internet connection.',
         );
+
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
+        final serverMessage = error.response?.data?['message'];
+
         switch (statusCode) {
           case 400:
-            return ApiError(message: 'Bad request');
+            return ApiError(message: serverMessage ?? 'Bad request.');
           case 401:
-            return ApiError(message: 'Unauthorized');
+            return ApiError(message: serverMessage ?? 'You must log in first.');
           case 403:
-            return ApiError(message: 'Forbidden');
+            return ApiError(message: serverMessage ?? 'Access forbidden.');
           case 404:
-            return ApiError(message: 'Not found');
+            return ApiError(message: serverMessage ?? 'Requested item not found.');
           case 500:
-            return ApiError(message: 'Internal server error');
+            return ApiError(message: 'Server error occurred. Please try later.');
           default:
             return ApiError(
-              message: 'Received invalid status code: $statusCode',
+              message: serverMessage ?? 'Unexpected error occurred. (Code: $statusCode)',
             );
         }
+
       case DioExceptionType.unknown:
         return ApiError(
-          message:
-              'Connection failed due to internet connection: ${error.message}',
+          message: 'Connection failed. Make sure you are connected to the internet.',
         );
+
       default:
-        return ApiError(message: 'Unexpected error occurred: ${error.message}');
+        return ApiError(
+          message: 'An unknown error occurred. Please try again later.',
+        );
     }
   }
 }
