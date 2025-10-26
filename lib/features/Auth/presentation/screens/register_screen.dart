@@ -1,4 +1,3 @@
-// lib/features/Auth/presentation/screens/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_tharad_tech/features/Auth/data/repo/auth_repo.dart';

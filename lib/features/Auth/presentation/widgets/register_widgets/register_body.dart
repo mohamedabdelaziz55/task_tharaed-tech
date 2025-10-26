@@ -1,4 +1,3 @@
-// lib/features/Auth/presentation/widgets/register_widgets/register_body.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,14 +29,17 @@ class _RegisterBodyState extends State<RegisterBody> {
 
   void _onRegisterPressed(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
+
     if (passwordController.text != confirmPasswordController.text) {
       SnackbarUtils.showSnackBar(context, "Passwords do not match", isError: true);
       return;
     }
+
     if (selectedImage == null) {
       SnackbarUtils.showSnackBar(context, "Please select a profile image", isError: true);
       return;
     }
+
     context.read<RegisterCubit>().registerUser(
       username: usernameController.text.trim(),
       email: emailController.text.trim(),
@@ -82,22 +84,82 @@ class _RegisterBodyState extends State<RegisterBody> {
                 SizedBox(height: size.height * 0.06),
                 Image.asset(ImageAssets.logo, width: size.width * 0.45),
                 SizedBox(height: size.height * 0.06),
-                Text("Create a new account", style: TextStyle(fontSize: size.width * 0.055, fontWeight: FontWeight.bold)),
+                Text(
+                  "Create a new account",
+                  style: TextStyle(fontSize: size.width * 0.055, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: size.height * 0.03),
                 ProfileImageUploader(
                   onImagePicked: (file) => setState(() => selectedImage = file),
                 ),
                 SizedBox(height: size.height * 0.02),
-                CustomTextField(title: 'User Name', controller: usernameController),
+
+                // ✅ Add Validators
+                CustomTextField(
+                  title: 'User Name',
+                  controller: usernameController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 12),
-                CustomTextField(title: 'Email', controller: emailController),
+
+                CustomTextField(
+                  title: 'Email',
+                  controller: emailController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value.trim())) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 12),
-                CustomTextField(title: 'Password', isPasswordField: true, controller: passwordController),
+
+                CustomTextField(
+                  title: 'Password',
+                  isPasswordField: true,
+                  controller: passwordController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 12),
-                CustomTextField(title: 'Confirm password', isPasswordField: true, controller: confirmPasswordController),
+
+                CustomTextField(
+                  title: 'Confirm password',
+                  isPasswordField: true,
+                  controller: confirmPasswordController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
                 SizedBox(height: size.height * 0.03),
-                GradientButton(title: 'Create a new account', onPressed: () => _onRegisterPressed(context)),
+
+                GradientButton(
+                  title: 'Create a new account',
+                  onPressed: () => _onRegisterPressed(context),
+                ),
                 SizedBox(height: size.height * 0.01),
+
                 CustomText(
                   onPressed: () => navigateTo(const LoginScreen(), canPop: true),
                   text2: 'Login',
